@@ -58,7 +58,7 @@ class Nozzle_Item(models.Model):
 class Transaction_item(models.Model):
     pump = models.ForeignKey('Pump_Info', on_delete=models.CASCADE)
     nozzle = models.ForeignKey('Nozzle_Item', on_delete=models.CASCADE)
-    attendant_name = models.ForeignKey("Attendant", null = True , on_delete=models.CASCADE)
+    attendant = models.ForeignKey('Attendant', on_delete=models.SET_NULL, null=True, blank=True)
     fuel_type = models.ForeignKey('Fuel_Type', on_delete=models.CASCADE)
     volume = models.FloatField()
     total_cost = models.FloatField()
@@ -67,5 +67,5 @@ class Transaction_item(models.Model):
     processed = models.BooleanField(default=False)  # Ensure this field is defined
 
     def __str__(self):
-        attendant_name = self.attendant_name.name if self.attendant_name else "Unknown Attendant"
-        return f"Transaction {self.id} at Pump {self.pump.pump_number} - {self.volume} liters - by {attendant_name}"
+        attendant = self.attendant.name if self.attendant else "Unknown Attendant"
+        return f"Transaction {self.id} at Pump {self.pump.pump_number} - {self.volume} liters - by {attendant}"

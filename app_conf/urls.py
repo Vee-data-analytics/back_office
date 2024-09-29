@@ -8,7 +8,6 @@ from app_conf.views import (
 
 router = DefaultRouter()
 router.register(r'pumps', PumpInfoViewSet, basename='pump')
-
 router.register(r'nozzles', NozzleItemViewSet)
 router.register(r'fuel-types', FuelTypeViewSet)
 router.register(r'transactions', TransactionViewSet)

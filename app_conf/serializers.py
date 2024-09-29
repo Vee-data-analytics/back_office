@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Transaction_item, Pump_Info, Nozzle_Item, Fuel_Type
+from .models import Transaction_item,Attendant , Pump_Info, Nozzle_Item, Fuel_Type
 
 # Nested serializer for Pump_Info
 class PumpInfoSerializer(serializers.ModelSerializer):
@@ -19,28 +19,44 @@ class FuelTypeSerializer(serializers.ModelSerializer):
         model = Fuel_Type
         fields = ['id', 'fuel_type','fuel_price']
 
-# Main serializer for Transaction_item
 class TransactionItemSerializer(serializers.ModelSerializer):
-    pump = PumpInfoSerializer(read_only=True)
-    nozzle = NozzleItemSerializer(read_only=True)
-    fuel_type = FuelTypeSerializer(read_only=True)
-
-    pump_id = serializers.IntegerField(write_only=True)
-    nozzle_id = serializers.IntegerField(write_only=True)
-    fuel_type_id = serializers.IntegerField(write_only=True)
+    attendant = serializers.PrimaryKeyRelatedField(queryset=Attendant.objects.all(), required=False)
+    pump = serializers.PrimaryKeyRelatedField(queryset=Pump_Info.objects.all())
+    nozzle = serializers.PrimaryKeyRelatedField(queryset=Nozzle_Item.objects.all())
+    fuel_type = serializers.PrimaryKeyRelatedField(queryset=Fuel_Type.objects.all())
 
     class Meta:
         model = Transaction_item
-        fields = ['id', 'pump', 'nozzle', 'attendant_name', 'fuel_type', 'volume', 'total_cost', 'timestamp', 'processed', 'pump_id', 'nozzle_id', 'fuel_type_id']
+        fields = ['id', 'pump', 'nozzle', 'fuel_type', 'volume', 'total_cost', 'attendant']
 
     def create(self, validated_data):
-        pump_id = validated_data.pop('pump_id')
-        nozzle_id = validated_data.pop('nozzle_id')
-        fuel_type_id = validated_data.pop('fuel_type_id')
+        try:
+            # Get nozzle
+            nozzle_id = validated_data.get('nozzle')
+            nozzle = Nozzle_Item.objects.get(id=nozzle_id.id)
+            validated_data['nozzle'] = nozzle
 
-        validated_data['pump'] = Pump_Info.objects.get(id=pump_id)
-        validated_data['nozzle'] = Nozzle_Item.objects.get(id=nozzle_id)
-        validated_data['fuel_type'] = Fuel_Type.objects.get(id=fuel_type_id)
-        validated_data['processed'] = False
+            # Get pump
+            pump_id = validated_data.get('pump')
+            pump = Pump_Info.objects.get(id=pump_id.id)
+            validated_data['pump'] = pump
 
-        return super().create(validated_data)
+            # Get fuel_type
+            fuel_type_id = validated_data.get('fuel_type')
+            fuel_type = Fuel_Type.objects.get(id=fuel_type_id.id)
+            validated_data['fuel_type'] = fuel_type
+
+            # Create the transaction item
+            return Transaction_item.objects.create(**validated_data)
+        except Nozzle_Item.DoesNotExist:
+            raise serializers.ValidationError("Invalid nozzle ID")
+        except Pump_Info.DoesNotExist:
+            raise serializers.ValidationError("Invalid pump ID")
+        except Fuel_Type.DoesNotExist:
+            raise serializers.ValidationError("Invalid fuel type ID")
+        except Exception as e:
+            raise serializers.ValidationError(f"Error creating transaction: {str(e)}")
+
+    def validate(self, data):
+        # Add any additional validation logic here
+        return data
