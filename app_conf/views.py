@@ -3,10 +3,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from .models import Pump_Info, Nozzle_Item, Fuel_Type, Transaction_item
-from .serializers import PumpInfoSerializer, NozzleItemSerializer, FuelTypeSerializer, TransactionItemSerializer
+from .serializers import PumpInfoSerializer, NozzleItemSerializer,FuelTypeSerializer, TransactionItemSerializer
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from rest_framework.views import APIView
+from rest_framework.response import Response
 import logging
+from .serializers import TransactionItemSerializer
 
 
 class PumpInfoViewSet(viewsets.ModelViewSet):
@@ -60,3 +63,15 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         return serializer.save()
+
+
+
+class UnprocessedTransactionsView(APIView):
+    def get(self, request):
+        pump_id = request.query_params.get('pump_id')
+        if pump_id:
+            transactions = Transaction_item.objects.filter(pump_id=pump_id, processed=False)
+        else:
+            transactions = Transaction_item.objects.filter(processed=False)
+        serializer = TransactionItemSerializer(transactions, many=True)
+        return Response(serializer.data)

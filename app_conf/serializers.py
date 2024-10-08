@@ -1,11 +1,18 @@
-from rest_framework import serializers
 from .models import Transaction_item,Attendant , Pump_Info, Nozzle_Item, Fuel_Type
+from rest_framework import serializers
+
 
 # Nested serializer for Pump_Info
 class PumpInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pump_Info
         fields = ['id', 'pump_number', 'tank_info']
+
+
+class FuelTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fuel_Type
+        fields = ['id','fuel_type','fuel_price']
 
 # Nested serializer for Nozzle_Item
 class NozzleItemSerializer(serializers.ModelSerializer):
@@ -14,20 +21,18 @@ class NozzleItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'nozzle_name']
 
 # Nested serializer for Fuel_Type
-class FuelTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Fuel_Type
-        fields = ['id', 'fuel_type','fuel_price']
-
 class TransactionItemSerializer(serializers.ModelSerializer):
     attendant = serializers.PrimaryKeyRelatedField(queryset=Attendant.objects.all(), required=False)
     pump = serializers.PrimaryKeyRelatedField(queryset=Pump_Info.objects.all())
     nozzle = serializers.PrimaryKeyRelatedField(queryset=Nozzle_Item.objects.all())
     fuel_type = serializers.PrimaryKeyRelatedField(queryset=Fuel_Type.objects.all())
+    attendant_name = serializers.CharField(source='attendant.name', read_only=True)
+    nozzle_name = serializers.CharField(source='nozzle.nozzle_name', read_only=True)
+    fuel_type_name = serializers.CharField(source='fuel_type.fuel_type', read_only=True)
 
     class Meta:
         model = Transaction_item
-        fields = ['id', 'pump', 'nozzle', 'fuel_type', 'volume', 'total_cost', 'attendant']
+        fields = ['id', 'pump', 'nozzle', 'nozzle_name', 'fuel_type', 'fuel_type_name', 'volume', 'total_cost', 'attendant', 'attendant_name', 'timestamp']
 
     def create(self, validated_data):
         try:
