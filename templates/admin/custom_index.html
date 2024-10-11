@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'custom_admin/css/custom_admin.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    {% if app_list %}
+        <div class="dashboard-grid">
+            {% for app in app_list %}
+                {% for model in app.models %}
+                    <a class="model-button" href="{{ model.admin_url }}">
+                        <i class="fas fa-{% if model.object_name == 'Transaction_item' %}receipt{% elif model.object_name == 'Nozzle_Item' %}gas-pump{% elif model.object_name == 'Attendant' %}user{% elif model.object_name == 'Pump_Info' %}tachometer-alt{% elif model.object_name == 'Tank_Info' %}database{% elif model.object_name == 'Fuel_Type' %}oil-can{% else %}cube{% endif %}"></i>
+                        <span>{{ model.name }}</span>
+                    </a>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>{% trans "You don't have permission to view or edit anything." %}</p>
+    {% endif %}
+</div>
+{% endblock %}

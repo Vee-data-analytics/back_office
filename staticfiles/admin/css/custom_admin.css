@@ -1,0 +1,80 @@
+:root {
+    --primary-color: #030f29;
+    --secondary-color: #ff0404;
+    --tertiary-color: #c6c6c6;
+}
+
+body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+}
+
+/* Header */
+#header {
+    background-color: var(--primary-color);
+    color: var(--tertiary-color);
+    padding: 15px 20px;
+}
+
+#header a:link, #header a:visited {
+    color: var(--tertiary-color);
+}
+
+/* Content */
+#content {
+    padding: 20px;
+}
+
+/* Dashboard grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Model buttons */
+.model-button {
+    background-color: var(--primary-color);
+    color: var(--tertiary-color);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.model-button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.model-button i {
+    font-size: 4em;
+    margin-bottom: 15px;
+}
+
+.model-button span {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .model-button {
+        min-height: 180px;
+    }
+}
